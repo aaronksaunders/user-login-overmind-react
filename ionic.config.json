@@ -1,0 +1,7 @@
+{
+  "name": "testfast",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
