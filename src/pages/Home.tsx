@@ -1,6 +1,6 @@
-import MessageListItem from '../components/MessageListItem';
-import React, { useState } from 'react';
-import { Message, getMessages } from '../data/messages';
+import MessageListItem from "../components/MessageListItem";
+import React, { useState } from "react";
+import { Message, getMessages } from "../data/messages";
 import {
   IonContent,
   IonHeader,
@@ -10,11 +10,16 @@ import {
   IonRefresherContent,
   IonTitle,
   IonToolbar,
-  useIonViewWillEnter
-} from '@ionic/react';
-import './Home.css';
+  useIonViewWillEnter,
+  IonButtons,
+  IonButton,
+} from "@ionic/react";
+import "./Home.css";
+import { useApp } from "../overmind";
+import { RouteComponentProps } from "react-router";
 
-const Home: React.FC = () => {
+const Home: React.FC<RouteComponentProps> = ({ history }) => {
+  const { actions } = useApp();
 
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -29,28 +34,29 @@ const Home: React.FC = () => {
     }, 3000);
   };
 
+  const doLogout = async () => {
+    await actions.doLogout();
+    history.push("/login");
+  };
+
   return (
     <IonPage id="home-page">
       <IonHeader>
         <IonToolbar>
           <IonTitle>Inbox</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={() => doLogout()}>LOGOUT</IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
         <IonRefresher slot="fixed" onIonRefresh={refresh}>
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>
-
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">
-              Inbox
-            </IonTitle>
-          </IonToolbar>
-        </IonHeader>
-
         <IonList>
-          {messages.map(m => <MessageListItem key={m.id} message={m} />)}
+          {messages.map((m) => (
+            <MessageListItem key={m.id} message={m} />
+          ))}
         </IonList>
       </IonContent>
     </IonPage>
