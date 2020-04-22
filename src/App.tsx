@@ -1,9 +1,10 @@
 import React from "react";
 import { Redirect, Route } from "react-router-dom";
-import {  RouteProps } from "react-router";
+import { RouteProps } from "react-router";
 import { IonApp, IonRouterOutlet } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import Login from "./pages/Login";
+import CreateAccount from "./pages/CreateAccount";
 import Home from "./pages/Home";
 import ViewMessage from "./pages/ViewMessage";
 
@@ -27,7 +28,7 @@ import "@ionic/react/css/display.css";
 import "./theme/variables.css";
 
 // overmind
-import { useApp } from './overmind'
+import { useApp } from "./overmind";
 
 export interface PrivateRouteProps extends RouteProps {
   component: any;
@@ -64,6 +65,7 @@ const App: React.FC = () => (
     <IonReactRouter>
       <IonRouterOutlet>
         <Route path="/login" component={Login} exact={true} />
+        <Route path="/create-account" component={CreateAccount} exact={true} />
         <PrivateRoute path="/home" component={Home} exact={true} />
         <PrivateRoute
           path="/message/:id"

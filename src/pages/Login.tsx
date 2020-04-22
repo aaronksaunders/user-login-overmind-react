@@ -18,22 +18,22 @@ import "./Home.css";
 import { useApp } from "../overmind";
 import { RouteComponentProps } from "react-router";
 
-const Home: React.FC <RouteComponentProps>= ({history}) => {
+const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>("");
 
-  // overmind actions
-  const { actions } = useApp();
+// overmind actions
+const { actions } = useApp();
 
   const doLogin = async () => {
     console.log(email, password, error);
     try {
-      let response = actions.doLogin({ email, password });
+      let response = await actions.doLogin({ email, password });
       console.log(response);
-      history.push('/home');
+      history.push("/home");
     } catch (error) {
-      setError(error);
+      setError(error.message);
     }
   };
 
@@ -71,6 +71,8 @@ const Home: React.FC <RouteComponentProps>= ({history}) => {
               ></IonInput>
             </IonItem>
             <IonButton onClick={() => doLogin()}>LOGIN</IonButton>
+            <IonButton onClick={() => history.push('/create-account')}>CREATE ACCOUNT</IonButton>
+
           </IonCardContent>
         </IonCard>
       </IonContent>
@@ -78,4 +80,4 @@ const Home: React.FC <RouteComponentProps>= ({history}) => {
   );
 };
 
-export default Home;
+export default Login;
