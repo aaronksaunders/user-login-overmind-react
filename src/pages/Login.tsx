@@ -23,17 +23,18 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>("");
 
-// overmind actions
-const { actions } = useApp();
+  // overmind actions
+  const { actions, state } = useApp();
 
   const doLogin = async () => {
     console.log(email, password, error);
-    try {
-      let response = await actions.doLogin({ email, password });
+
+    let response = await actions.doLogin({ email, password });
+    if (!state.error) {
       console.log(response);
       history.push("/home");
-    } catch (error) {
-      setError(error.message);
+    } else {
+      setError(state.error.message);
     }
   };
 
@@ -71,8 +72,9 @@ const { actions } = useApp();
               ></IonInput>
             </IonItem>
             <IonButton onClick={() => doLogin()}>LOGIN</IonButton>
-            <IonButton onClick={() => history.push('/create-account')}>CREATE ACCOUNT</IonButton>
-
+            <IonButton onClick={() => history.push("/create-account")}>
+              CREATE ACCOUNT
+            </IonButton>
           </IonCardContent>
         </IonCard>
       </IonContent>

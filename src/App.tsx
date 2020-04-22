@@ -60,22 +60,34 @@ const PrivateRoute: React.SFC<PrivateRouteProps> = ({
   );
 };
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <Route path="/login" component={Login} exact={true} />
-        <Route path="/create-account" component={CreateAccount} exact={true} />
-        <PrivateRoute path="/home" component={Home} exact={true} />
-        <PrivateRoute
-          path="/message/:id"
-          component={ViewMessage}
-          exact={true}
-        />
-        <Route exact path="/" render={() => <Redirect to="/home" />} />
-      </IonRouterOutlet>
-    </IonReactRouter>
-  </IonApp>
-);
+const App: React.FC = () => {
+  const { state } = useApp();
+  console.log(state.currentUser + "  " + state.initialized);
+  return (
+    <>
+      {state.initialized === true ? (
+        <IonApp>
+          <IonReactRouter>
+            <IonRouterOutlet>
+              <PrivateRoute path="/login" component={Login} exact={true} />
+              <Route
+                path="/create-account"
+                component={CreateAccount}
+                exact={true}
+              />
+              <PrivateRoute path="/home" component={Home} exact={true} />
+              <PrivateRoute
+                path="/message/:id"
+                component={ViewMessage}
+                exact={true}
+              />
+              <Route exact path="/" render={() => <Redirect to="/home" />} />
+            </IonRouterOutlet>
+          </IonReactRouter>
+        </IonApp>
+      ) : null}
+    </>
+  );
+};
 
 export default App;

@@ -1,4 +1,7 @@
-import { AsyncAction } from "overmind";
+import { AsyncAction, Action } from "overmind";
+import * as API from "./firebase-data";
+
+console.log(API.default);
 
 export const doCreateAccount: AsyncAction<any, boolean> = async (
   { state },
@@ -9,35 +12,24 @@ export const doCreateAccount: AsyncAction<any, boolean> = async (
     password: string;
   }
 ) => {
-  return new Promise((resolve, reject) => {
-    state.error = null;
-    state.currentUser = null;
-
-    // fake error message to show errors
-    if ( userInfo.email === 'a@mail.com') {
-      state.error = {message : 'user already exists'};
-      reject(state.error);
-      return;
-    }
-
-    // fake user
-    let user = { ...userInfo };
-    delete user.password;
-    state.currentUser = { ...user };
-    resolve(true);
-  });
+  state.error = null;
+  state.currentUser = null;
+  let newUserInfo = await API.createAccount(userInfo);
+  let user = { ...userInfo, uid: newUserInfo?.user?.uid };
+  delete user.password;
+  state.currentUser = { ...user };
+  return true;
 };
 /**
  *
  * @param param0
  */
 export const doLogout: AsyncAction<void, boolean> = async ({ state }) => {
-  return new Promise((resolve) => {
-    state.error = null;
-    state.currentUser = null;
+  state.error = null;
+  state.currentUser = null;
 
-    resolve(true);
-  });
+  await API.logout();
+  return true;
 };
 
 /**
@@ -45,25 +37,25 @@ export const doLogout: AsyncAction<void, boolean> = async ({ state }) => {
  * @param param0
  * @param credentials
  */
-export const doLogin: AsyncAction<any, any> = async (
-  { state },
+export const doLogin: Action<any, any> = async (
+  { state, effects },
   credentials: { email: string; password: string }
 ) => {
-  return new Promise((resolve, reject) => {
+  try {
     state.error = null;
     state.currentUser = null;
 
-    if (credentials.password === "password123") {
-      state.currentUser = {
-        email: credentials.email,
-        username: credentials.email,
-        uid: "121222121",
-      };
-      resolve(state.currentUser);
-    } else {
-      state.currentUser = null;
-      state.error = { message: "No User Found" };
-      reject(state.error);
-    }
-  });
+    let { user } = await effects.login(credentials);
+
+    state.currentUser = {
+      email: user?.email,
+      username: user?.displayName || user?.email,
+      uid: user?.uid,
+    };
+    return state.currentUser;
+  } catch (error) {
+    state.currentUser = null;
+    state.error = error;
+    return error;
+  }
 };
