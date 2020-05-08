@@ -1,10 +1,42 @@
-import { AsyncAction, Action } from "overmind";
-import * as API from "./firebase-data";
+import {
+  AsyncAction,
+  Action,
+  pipe,
+  mutate,
+  catchError,
+  Operator,
+} from "overmind";
 
-console.log(API.default);
+type UserInfo = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  uid?:string
+}
+
+export const createAccountAndUserRecord: Operator<any, any> = pipe(
+  mutate(async ({ state, effects }, userInfo: any) => {
+    state.error = null;
+    state.currentUser = null;
+    let { email, password } = userInfo;
+    let newUserInfo = await effects.createAccount({ email, password });
+    state.currentUser = { ...newUserInfo.user, uid: newUserInfo?.user?.uid };
+  }),
+  mutate(
+    async ({ state, effects }, userInfo: any) => {
+      let newUserInfo = await effects.createUserRecord(userInfo);
+      state.currentUser = { ...newUserInfo?.data() };
+    }
+  ),
+  catchError(({ state }, error: Error): Operator<Error, never> => {
+    state.error = error;
+    throw new Error(error.message);
+  })
+);
 
 export const doCreateAccount: AsyncAction<any, boolean> = async (
-  { state },
+  { state, effects },
   userInfo: {
     email: string;
     firstName: string;
@@ -14,21 +46,38 @@ export const doCreateAccount: AsyncAction<any, boolean> = async (
 ) => {
   state.error = null;
   state.currentUser = null;
-  let newUserInfo = await API.createAccount(userInfo);
-  let user = { ...userInfo, uid: newUserInfo?.user?.uid };
-  delete user.password;
-  state.currentUser = { ...user };
+  let { email, password } = userInfo;
+  let newUserInfo = await effects.createAccount({ email, password });
+  state.currentUser = { ...newUserInfo.user, uid: newUserInfo?.user?.uid };
+  return true;
+};
+
+export const doAddUser: AsyncAction<any, boolean> = async (
+  { state, effects },
+  userInfo: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    uid: string;
+  }
+) => {
+  state.error = null;
+  await effects.createUserRecord(userInfo);
+  state.currentUser = { ...state.currentUser.user, ...userInfo };
   return true;
 };
 /**
  *
  * @param param0
  */
-export const doLogout: AsyncAction<void, boolean> = async ({ state }) => {
+export const doLogout: AsyncAction<void, boolean> = async ({
+  state,
+  effects,
+}) => {
   state.error = null;
   state.currentUser = null;
 
-  await API.logout();
+  await effects.logout();
   return true;
 };
 

@@ -18,12 +18,32 @@ export const logout = () => {
 };
 export const createAccount = ({
   email,
-  password,
+  password
 }: {
   email: string;
   password: string;
 }) => {
   return firebaseApp.auth().createUserWithEmailAndPassword(email, password);
+};
+
+export const createUserRecord = async (info: {
+  email: string;
+  firstName: string;
+  lastName: string;
+  uid: string;
+}) => {
+  let usersRef = firebase.firestore().collection("users").doc(info.uid);
+  let created = firebase.firestore.Timestamp.fromDate(new Date());
+
+  let newUserData = {
+    ...info,
+    created,
+  };
+
+  await usersRef.set(newUserData);
+
+  return (await usersRef.get()).data();
+
 };
 
 export const authInit = () => {

@@ -46,7 +46,7 @@ const CreateAccount: React.FC<RouteComponentProps> = ({ history }) => {
       // return from react-hook-form when all fields are
       // valid
       const { email, firstName, lastName, password } = data;
-      let response = await actions.doCreateAccount({
+      let response = await actions.createAccountAndUserRecord({
         email,
         firstName,
         lastName,
@@ -55,6 +55,7 @@ const CreateAccount: React.FC<RouteComponentProps> = ({ history }) => {
       console.log(response);
       history.push("/home");
     } catch (error) {
+      debugger;
       setError(error.message);
     }
   };
